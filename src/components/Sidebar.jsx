@@ -1,33 +1,48 @@
-import React from "react"
+import { useState } from "react";
+import { useMemo } from "react";
 
-export default function Sidebar(props) {
-    const noteElements = props.notes.map((note, index) => (
-        <div key={note.id}>
-            <div
-                
-                className={`title ${
-                    note.id === props.currentNote.id ? "selected-note" : ""
-                }`}
-                onClick={() => props.setCurrentNoteId(note.id)}
-            >
-                <h4 className="text-snippet">{note.body.split("\n")[0]}</h4>
-                <button 
-                    className="delete-btn"
-                    onClick={() => props.deleteNote(note.id)}
-                >
-                    <i className="gg-trash trash-icon"></i>
-                </button>
-            </div>
-        </div>
-    ))
+export default function({newNote, notes, currentNote, setCurNoteId, deleteNote}){
+    const [numberOfItemShown, setNumberOfItemShown] = useState(7);
 
-    return (
-        <section className="pane sidebar">
-            <div className="sidebar--header">
-                <h3>Notes</h3>
-                <button className="new-note" onClick={props.newNote}>+</button>
+const showMore=()=>{
+    if(numberOfItemShown <= notes.length){
+        setNumberOfItemShown( numberOfItemShown + 5)
+    }else{
+        setNumberOfItemShown(notes.length)
+    }
+}
+
+
+    const noteElements = useMemo(()=>(
+
+        notes.slice(0, numberOfItemShown).map((note,index)=>(
+            <div key={note.id}>
+               <div className={`title ${note.id === currentNote.id ? "selected-note" : ""}`}
+    
+                onClick={()=> setCurNoteId(note.id)}>
+                 
+               <h4 className="text-snippet">{note.body.split("\n")[0]} </h4>
+               
+               <button  className="delete-btn" onClick={(event) => deleteNote(event, note.id)} >
+                        <i className="gg-trash trash-icon"></i>
+                    </button>
+               </div>
             </div>
-            {noteElements}
-        </section>
-    )
+        ))
+
+    )) 
+
+    return(
+       
+        <aside className="sidebar pane">
+            <div>
+            <div className="sidebar__header">
+                <button className="sidebar__new-note" onClick={newNote}>+   New Note</button>
+            </div>
+            {noteElements.length ? noteElements : "loading..."}
+           <button className="show-more" onClick={showMore}>show more</button> 
+           </div>
+           
+        </aside>
+    );
 }
